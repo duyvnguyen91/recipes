@@ -6,6 +6,9 @@ variables:
   GIT_UBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  SECRET_KEY: <a random character string>
+  FLASK_CONFIG: development
+  DATABASE_URL: postgresql://postgres:postgres@172.17.0.2:5432/recipe_db
   # DOCKER_HOST: tcp://localhost:2375
   DOCKER_DRIVER: overlay
 
@@ -46,6 +49,6 @@ deploy recipes ec2:
   script:
     # - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
     # - ssh $SSH_USER@$SSH_SERVER_IP
-    - ls -al 
-    - envsubst < docker-compose.yml | docker-compose up -d -f -
+    - envsubst < docker-compose.tpl.yml > docker-compose.yml
+    - docker-compose up -d
     - docker image prune -f

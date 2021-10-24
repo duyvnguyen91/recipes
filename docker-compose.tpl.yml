@@ -4,9 +4,9 @@ services:
   web-recipes:
     image: 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG
     environment:
-      SECRET_KEY: "<a random character string>"
-      FLASK_CONFIG: "development"
-      DATABASE_URL: postgresql://postgres:postgres@172.17.0.2:5432/recipe_db
+      SECRET_KEY: $SECRET_KEY
+      FLASK_CONFIG: $FLASK_CONFIG
+      DATABASE_URL: $DATABASE_URL
     command: >
       sh -c "python manage.py db init &&
              python manage.py db migrate &&
