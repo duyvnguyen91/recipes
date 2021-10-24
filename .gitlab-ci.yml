@@ -36,7 +36,7 @@ build image:
   script: |
     docker-build
 
-deploy admin service:
+deploy recipes ec2:
   when: manual
   stage: deploy
   tags:
