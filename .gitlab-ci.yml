@@ -47,5 +47,5 @@ deploy recipes ec2:
     # - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
     # - ssh $SSH_USER@$SSH_SERVER_IP
     - ls -al 
-    - envsubst < docker-compose.yml | docker-compose up -d -f 
+    - envsubst < docker-compose.yml | docker-compose up -d -f -
     - docker image prune -f
