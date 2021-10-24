@@ -1,0 +1,50 @@
+image: vietduy0509/deployer
+
+variables:
+  SERVICE_PATH: /admin
+  HOST: api.wecycle4life.com
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_STRATEGY: clone
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  # DOCKER_HOST: tcp://localhost:2375
+  DOCKER_DRIVER: overlay
+
+.before_script: &before_script |
+  export IMAGE_TAG=$CI_COMMIT_SHORT_SHA
+  mkdir ~/.ssh
+  echo "$GITLAB_RUNNER_PRIVATE_KEY" > ~/.ssh/id_rsa
+  chmod 600 ~/.ssh/id_rsa
+  ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+
+  function docker-build() {
+    aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/recipes
+    docker build -t 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG .
+    docker push 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG
+  }
+
+
+before_script:
+  - *before_script
+
+stages:
+  - build
+  - deploy
+
+build image:
+  stage: build
+  tags:
+    - wecycle-runner
+  script: |
+    docker-build
+
+deploy admin service:
+  stage: deploy
+  tags:
+    - wecycle-runner
+  variables:
+    NAMESPACE: default
+  script: |
+    mkdir -p ~/.kube
+    echo "$RKE_CONFIG" > ~/.kube/config
+    cd k8s && bash deploy.sh
+
