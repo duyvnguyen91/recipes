@@ -44,6 +44,8 @@ deploy recipes ec2:
   variables:
     NAMESPACE: default
   script:
-    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+    # - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+    # - ssh $SSH_USER@$SSH_SERVER_IP
+    - ls -al 
     - envsubst < docker-compose.yml | docker-compose up -d -f 
-    - docker image prune -f;"
+    - docker image prune -f
