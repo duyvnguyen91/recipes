@@ -1,4 +1,4 @@
-image: vietduy0509/deployer
+image: vietduy0509/deployer:latest
 
 variables:
   SERVICE_PATH: /admin
