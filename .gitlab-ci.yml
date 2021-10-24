@@ -8,7 +8,7 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   SECRET_KEY: <a random character string>
   FLASK_CONFIG: development
-  DATABASE_URL: postgresql://postgres:postgres@172.17.0.2:5432/recipe_db
+  DATABASE_URL: postgresql://postgres:postgres@recipes-db.ckcejaos8w8c.ap-southeast-1.rds.amazonaws.com:5432/recipe_db
   # DOCKER_HOST: tcp://localhost:2375
   DOCKER_DRIVER: overlay
 
