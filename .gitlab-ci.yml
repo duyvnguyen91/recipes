@@ -3,7 +3,7 @@ image: vietduy0509/deployer
 variables:
   SERVICE_PATH: /admin
   HOST: api.wecycle4life.com
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_UBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   # DOCKER_HOST: tcp://localhost:2375
@@ -22,7 +22,6 @@ variables:
     docker push 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG
   }
 
-
 before_script:
   - *before_script
 
@@ -38,13 +37,13 @@ build image:
     docker-build
 
 deploy admin service:
+  when: manual
   stage: deploy
   tags:
     - wecycle-runner
   variables:
     NAMESPACE: default
-  script: |
-    mkdir -p ~/.kube
-    echo "$RKE_CONFIG" > ~/.kube/config
-    cd k8s && bash deploy.sh
-
+  script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+    - envsubst < docker-compose.yml | docker-compose up -d -f 
+    - docker image prune -f;"

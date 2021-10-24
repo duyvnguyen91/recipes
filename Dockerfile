@@ -13,4 +13,4 @@ RUN pip3 --no-cache-dir install -r requirements.txt
     # pip3 install -U pip3 setuptools wheel && \
     # pip3 install msoffcrypto-tool psycopg2 && \
     
-CMD [ "python", "manage.py", "runserver" ]
+# CMD [ "python", "manage.py", "runserver" ]
