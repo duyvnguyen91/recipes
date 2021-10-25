@@ -2,8 +2,8 @@
 image: vietduy0509/deployer:latest
 
 variables:
-  SERVICE_PATH: /admin
-  HOST: api.wecycle4life.com
+  SERVICE_PATH: /recipes
+  HOST: abc.xyz
   GIT_UBMODULE_STRATEGY: recursive
   GIT_STRATEGY: clone
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
@@ -63,3 +63,6 @@ deploy recipes eks:
   script: |
     aws eks --region ap-southeast-1 update-kubeconfig --name basic-cluster
     cd k8s && bash deploy.sh
+
+# Dont mind the runner name, I re-use the runner of my previous project
+# You can use the same stage with another tool, I just re-use gitlab-ci cuz I already had my AWS account connected to my Gitlab account

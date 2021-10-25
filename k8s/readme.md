@@ -6,4 +6,4 @@ Cause I create a Private Repo on ECR, so I'm gonna need a imagepullsecret in ord
 Just run regen-secret.sh to create a secret name `aws-ecr-credentials`
 
 # Connection to RDS instance
-Just add security group of EC2 instances to inbound rule of the RDS instance
+Just add security group of EC2 instances to inbound rule of the RDS instance's Security Group
