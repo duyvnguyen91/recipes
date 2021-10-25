@@ -23,6 +23,12 @@ spec:
       containers:
       - name: $CI_PROJECT_NAME
         image: 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG
+        command: ["/bin/sh", "-c"]
+        args:
+        - python manage.py db init;
+          python manage.py db migrate;
+          python manage.py db upgrade;
+          python manage.py runserver
         env:
         - name: SECRET_KEY
           value: $SECRET_KEY
@@ -38,9 +44,6 @@ spec:
               cpu: "0.5"
               memory: "400Mi"
         lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "python manage.py db init && python manage.py db migrate && python manage.py db upgrade && python manage.py runserver"]
           preStop:
             exec:
               command: ["/bin/sh", "-ec", "sleep 15"]
