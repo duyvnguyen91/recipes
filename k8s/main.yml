@@ -50,14 +50,6 @@ spec:
         ports:
         - name: http
           containerPort: 5000
-        readinessProbe:
-          tcpSocket:
-            port: 5000
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 3
-          failureThreshold: 3
       restartPolicy: Always
       imagePullSecrets:
       - name: aws-ecr-credentials

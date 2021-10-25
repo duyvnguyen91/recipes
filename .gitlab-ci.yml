@@ -1,3 +1,4 @@
+# My deployer image to be ran for stage job
 image: vietduy0509/deployer:latest
 
 variables:
@@ -9,9 +10,9 @@ variables:
   SECRET_KEY: <a random character string>
   FLASK_CONFIG: development
   DATABASE_URL: postgresql://postgres:postgres@recipes-db.ckcejaos8w8c.ap-southeast-1.rds.amazonaws.com:5432/recipe_db
-  # DOCKER_HOST: tcp://localhost:2375
   DOCKER_DRIVER: overlay
 
+# Before Script for every job
 .before_script: &before_script |
   export IMAGE_TAG=$CI_COMMIT_SHORT_SHA
   mkdir ~/.ssh
@@ -32,6 +33,7 @@ stages:
   - build
   - deploy
 
+# Build docker image
 build image:
   stage: build
   tags:
@@ -39,18 +41,18 @@ build image:
   script: |
     docker-build
 
+# Deploy deployment to EC2 instance with docker-compose
 deploy recipes ec2:
   when: manual
   stage: deploy
   tags:
     - wecycle-runner
   script:
-    # - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
-    # - ssh $SSH_USER@$SSH_SERVER_IP
     - envsubst < docker-compose.tpl.yml > docker-compose.yml
     - docker-compose up -d
     - docker image prune -f
 
+# Deploy deployment to EKS cluster
 deploy recipes eks:
   when: manual
   stage: deploy
