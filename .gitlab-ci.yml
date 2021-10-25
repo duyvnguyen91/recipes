@@ -44,11 +44,20 @@ deploy recipes ec2:
   stage: deploy
   tags:
     - wecycle-runner
-  variables:
-    NAMESPACE: default
   script:
     # - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
     # - ssh $SSH_USER@$SSH_SERVER_IP
     - envsubst < docker-compose.tpl.yml > docker-compose.yml
     - docker-compose up -d
     - docker image prune -f
+
+deploy recipes eks:
+  when: manual
+  stage: deploy
+  tags:
+    - wecycle-runner
+  variables:
+    NAMESPACE: default
+  script: |
+    aws eks --region ap-southeast-1 update-kubeconfig --name basic-cluster
+    cd k8s && bash deploy.sh

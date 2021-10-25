@@ -1,0 +1,70 @@
+apiVersion: eksctl.io/v1alpha5 # https://eksctl.io/usage/schema/
+kind: ClusterConfig
+
+metadata:
+  name: basic-cluster
+  region: ap-southeast-1
+  version: "1.21"
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: cluster-autoscaler
+      namespace: kube-system
+      labels: {aws-usage: "cluster-ops"}
+    wellKnownPolicies:
+      autoScaler: true
+    roleName: cluster-autoscaler-role
+    roleOnly: true
+
+addons:
+- name: vpc-cni
+  version: 1.7.5 # optional
+    
+vpc:
+  # nat:
+  #   gateway: HighlyAvailable # other options: Disable, Single (default)
+  subnets:
+    public:
+      ap-southeast-1a:
+          id: "subnet-c951a681"
+      ap-southeast-1b:
+          id: "subnet-26a16740"
+      ap-southeast-1c:
+          id: "subnet-a30dbffa"
+  clusterEndpoints:
+    publicAccess:  true
+    # privateAccess: true
+
+managedNodeGroups:
+  - name: ng-1
+    instanceTypes: ["t2.medium"]
+    instancePrefix: spot-medium-app-1
+    spot: true
+    minSize: 3
+    desiredCapacity: 3
+    maxSize: 20
+    availabilityZones: ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
+    volumeSize: 80
+    updateConfig:
+      maxUnavailable: 3 # or `maxUnavailablePercentage: 75` to specify maxUnavailable as a percentage of total nodes
+    labels:
+      scope: "app"
+      spec: "medium"
+      spot: "true"
+    tags:
+      role: worker
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: true
+        appMeshPreview: true
+        ebs: true
+        fsx: true
+        efs: true
+        albIngress: true
+        xRay: true
+        cloudWatch: true

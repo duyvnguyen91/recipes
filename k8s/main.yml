@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $CI_PROJECT_NAME
+  namespace: $NAMESPACE
+spec:
+  replicas: 1
+  progressDeadlineSeconds: 120
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # how many pods we can add at a time
+      maxUnavailable: 0  # maxUnavailable define how many pods can be unavailable # during the rolling update
+  selector:
+    matchLabels:
+      name: $CI_PROJECT_NAME
+  template:
+    metadata:
+      name: $CI_PROJECT_NAME
+      labels:
+        name: $CI_PROJECT_NAME
+    spec:
+      containers:
+      - name: $CI_PROJECT_NAME
+        image: 334687143702.dkr.ecr.ap-southeast-1.amazonaws.com/$CI_PROJECT_NAME:$IMAGE_TAG
+        env:
+        - name: SECRET_KEY
+          value: $SECRET_KEY
+        - name: FLASK_CONFIG
+          value: $FLASK_CONFIG
+        - name: DATABASE_URL
+          value: $DATABASE_URL
+        imagePullPolicy: Always
+        resources:
+            requests:
+              memory: "200Mi"
+            limits:
+              cpu: "0.5"
+              memory: "400Mi"
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "python manage.py db init && python manage.py db migrate && python manage.py db upgrade && python manage.py runserver"]
+          preStop:
+            exec:
+              command: ["/bin/sh", "-ec", "sleep 15"]
+        ports:
+        - name: http
+          containerPort: 5000
+        readinessProbe:
+          tcpSocket:
+            port: 5000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+          failureThreshold: 3
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: aws-ecr-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: $CI_PROJECT_NAME
+  name: $CI_PROJECT_NAME
+  namespace: $NAMESPACE
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+  selector:
+    name: $CI_PROJECT_NAME
+  type: ClusterIP
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   annotations:
+#     ingress.kubernetes.io/ssl-redirect: "true"
+#   name: $CI_PROJECT_NAME
+#   namespace: $NAMESPACE
+# spec:
+#   rules:
+#   - host: $HOST
+#     http:
+#       paths:
+#         - backend:
+#             serviceName: $CI_PROJECT_NAME
+#             servicePort: 80
+#           path: $SERVICE_PATH
+#   tls:
+#   - hosts:
+#     - $HOST
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: $CI_PROJECT_NAME
+  namespace: $NAMESPACE
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: $CI_PROJECT_NAME
+  minReplicas: 1
+  maxReplicas: 2
+  metrics: 
+  - type: Resource 
+    resource: 
+      name: memory 
+      targetAverageValue: 300Mi
